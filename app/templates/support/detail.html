@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Ticket #{{ ticket.id }} - Support Staff Inspection{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <div class="detail-nav">
+        <a href="{{ url_for('support.dashboard') }}" class="btn btn-secondary">&larr; Back to Queue</a>
+    </div>
+
+    <div class="detail-card">
+        <div class="detail-header">
+            <div class="detail-title-group">
+                <span class="ticket-id-tag">Ticket #{{ ticket.id }}</span>
+                <h2>{{ ticket.title }}</h2>
+            </div>
+            <div class="detail-status-group">
+                <span class="badge badge-status badge-status-{{ ticket.status|lower|replace(' ', '-') }} badge-lg">
+                    {{ ticket.status }}
+                </span>
+            </div>
+        </div>
+
+        <div class="detail-meta-grid">
+            <div class="meta-item">
+                <span class="meta-label">Submitted By</span>
+                <span class="meta-value">{{ ticket.creator_username }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Category</span>
+                <span class="meta-value"><span class="badge badge-category">{{ ticket.category }}</span></span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Priority</span>
+                <span class="meta-value"><span class="badge badge-priority badge-priority-{{ ticket.priority|lower }}">{{ ticket.priority }}</span></span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Created Date (UTC)</span>
+                <span class="meta-value">{{ ticket.created_date }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Last Updated (UTC)</span>
+                <span class="meta-value">{{ ticket.last_updated_date }}</span>
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <h3>Detailed Description</h3>
+            <div class="ticket-description-box">
+                {{ ticket.description }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

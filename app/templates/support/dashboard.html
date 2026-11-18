@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Support Console - Global Ticket Queue{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div>
+            <h2>Support Staff Console</h2>
+            <p class="subtitle">Global organization queue: monitor and triage employee support requests.</p>
+        </div>
+    </div>
+
+    {% if tickets %}
+        <div class="table-responsive">
+            <table class="tickets-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Employee</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Created (UTC)</th>
+                        <th>Last Updated (UTC)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                        <tr>
+                            <td>#{{ ticket.id }}</td>
+                            <td class="ticket-title-cell">
+                                <a href="{{ url_for('support.detail', ticket_id=ticket.id) }}" class="ticket-link">
+                                    {{ ticket.title }}
+                                </a>
+                            </td>
+                            <td><strong>{{ ticket.creator_username }}</strong></td>
+                            <td><span class="badge badge-category">{{ ticket.category }}</span></td>
+                            <td><span class="badge badge-priority badge-priority-{{ ticket.priority|lower }}">{{ ticket.priority }}</span></td>
+                            <td><span class="badge badge-status badge-status-{{ ticket.status|lower|replace(' ', '-') }}">{{ ticket.status }}</span></td>
+                            <td>{{ ticket.created_date }}</td>
+                            <td>{{ ticket.last_updated_date }}</td>
+                            <td>
+                                <a href="{{ url_for('support.detail', ticket_id=ticket.id) }}" class="btn btn-sm btn-outline">
+                                    Inspect
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p>No support tickets found in the queue.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
