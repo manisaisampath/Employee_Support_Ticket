@@ -1,6 +1,7 @@
-from flask import Flask
+from flask import Flask, redirect, session, url_for
 from app.config import Config
 from app.database import close_db
+from app.security import generate_csrf_token, validate_csrf_token
 
 
 def create_app(config_class=Config):
@@ -11,6 +12,25 @@ def create_app(config_class=Config):
     # Register database connection teardown
     app.teardown_appcontext(close_db)
 
-    # Note: Blueprints and error handlers will be registered in subsequent phases.
+    # Register CSRF protection on state-changing requests
+    app.before_request(validate_csrf_token)
+
+    # Register template context processor for CSRF tokens
+    @app.context_processor
+    def inject_csrf_token():
+        return dict(csrf_token=generate_csrf_token)
+
+    # Root route redirect
+    @app.route('/')
+    def index():
+        if 'user_id' in session:
+            if session.get('role') == 'support_staff':
+                return redirect('/support/dashboard')
+            return redirect('/employee/dashboard')
+        return redirect(url_for('auth.login'))
+
+    # Register Blueprints
+    from app.routes.auth import auth_bp
+    app.register_blueprint(auth_bp)
 
     return app
