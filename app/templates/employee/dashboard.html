@@ -1,56 +1,55 @@
 {% extends 'base.html' %}
 
-{% block title %}My Tickets - Employee Support Ticket System{% endblock %}
+{% block title %}My Tickets — Employee Support Ticket System{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <div class="dashboard-header">
-        <div>
-            <h2>My Support Tickets</h2>
-            <p class="subtitle">Track and manage your submitted support requests.</p>
-        </div>
-        <a href="{{ url_for('employee.create') }}" class="btn btn-primary">+ Create Ticket</a>
+<div class="page-header">
+    <div class="page-header-text">
+        <h2>My Support Tickets</h2>
+        <p class="subtitle">Track and manage your submitted support requests.</p>
     </div>
-
-    {% if tickets %}
-        <div class="table-card">
-            <div class="table-responsive">
-                <table class="tickets-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Title</th>
-                            <th>Category</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Last Updated (UTC)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for ticket in tickets %}
-                            <tr>
-                                <td style="color:var(--text-muted); font-size:.82rem;">#{{ ticket.id }}</td>
-                                <td class="ticket-title-cell">
-                                    <a href="{{ url_for('employee.detail', ticket_id=ticket.id) }}" class="ticket-title-link">
-                                        {{ ticket.title }}
-                                    </a>
-                                </td>
-                                <td><span class="badge badge-category">{{ ticket.category }}</span></td>
-                                <td><span class="badge badge-priority-{{ ticket.priority|lower }}">{{ ticket.priority }}</span></td>
-                                <td><span class="badge badge-status-{{ ticket.status|lower|replace(' ', '-') }}">{{ ticket.status }}</span></td>
-                                <td style="font-size:.83rem; color:var(--text-muted);">{{ ticket.last_updated_date }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    {% else %}
-        <div class="empty-state">
-            <div style="font-size:3rem; margin-bottom:.6rem;">&#128196;</div>
-            <p>You haven't submitted any support tickets yet.</p>
-            <a href="{{ url_for('employee.create') }}" class="btn btn-primary">Create Your First Ticket</a>
-        </div>
-    {% endif %}
+    <a href="{{ url_for('employee.create') }}" class="btn btn-primary">
+        &#43; Create Ticket
+    </a>
 </div>
+
+{% if tickets %}
+    <div class="table-wrapper">
+        <div class="table-responsive">
+            <table class="tickets-table" aria-label="My support tickets">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Priority</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Last Updated (UTC)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                        <tr>
+                            <td class="ticket-id-col">#{{ ticket.id }}</td>
+                            <td class="ticket-title-cell">
+                                <a href="{{ url_for('employee.detail', ticket_id=ticket.id) }}"
+                                   class="ticket-title-link">{{ ticket.title }}</a>
+                            </td>
+                            <td><span class="badge badge-category">{{ ticket.category }}</span></td>
+                            <td><span class="badge badge-priority-{{ ticket.priority|lower }}">{{ ticket.priority }}</span></td>
+                            <td><span class="badge badge-status-{{ ticket.status|lower|replace(' ', '-') }}">{{ ticket.status }}</span></td>
+                            <td class="ts-col">{{ ticket.last_updated_date }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon" aria-hidden="true">&#128196;</div>
+        <p>You haven't submitted any support tickets yet.</p>
+        <a href="{{ url_for('employee.create') }}" class="btn btn-primary">Create Your First Ticket</a>
+    </div>
+{% endif %}
 {% endblock %}

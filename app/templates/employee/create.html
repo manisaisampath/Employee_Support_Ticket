@@ -1,34 +1,43 @@
 {% extends 'base.html' %}
 
-{% block title %}Create Ticket - Employee Support Ticket System{% endblock %}
+{% block title %}Create Ticket — Employee Support Ticket System{% endblock %}
 
 {% block content %}
 <div class="detail-nav">
-    <a href="{{ url_for('employee.dashboard') }}" class="btn btn-secondary">&larr; Back to My Tickets</a>
+    <a href="{{ url_for('employee.dashboard') }}" class="btn btn-secondary">
+        &larr; Back to My Tickets
+    </a>
 </div>
 
 <div class="create-form-card">
-    <h2>&#128221; Create New Support Ticket</h2>
-    <p style="color:var(--text-muted); font-size:.9rem; margin-bottom:1.4rem;">
+    <h2>&#128221; Create Support Ticket</h2>
+    <p class="form-subtitle">
         Provide clear details about your issue. Once submitted, ticket details cannot be edited.
     </p>
 
-    <form method="POST" action="{{ url_for('employee.create') }}">
+    <form method="POST" action="{{ url_for('employee.create') }}"
+          id="ticket-create-form" novalidate>
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <div class="form-group">
-            <label for="title">Ticket Title <span style="color:#dc2626;">*</span></label>
-            <input type="text" id="title" name="title" maxlength="100" class="form-control"
-                   value="{{ title_val|default('') }}" required
-                   placeholder="Brief summary of the issue (max 100 characters)">
-            <small style="color:var(--text-muted); font-size:.78rem;">Maximum 100 characters.</small>
+            <label for="title">
+                Ticket Title <span class="required-marker" aria-hidden="true">*</span>
+            </label>
+            <input type="text" id="title" name="title"
+                   class="form-control" maxlength="100" required
+                   value="{{ title_val|default('') }}"
+                   placeholder="Brief summary of the issue (max 100 characters)"
+                   aria-required="true"
+                   aria-describedby="title-char-count">
         </div>
 
         <div class="form-row-cols">
             <div class="form-group">
-                <label for="category">Category <span style="color:#dc2626;">*</span></label>
-                <select id="category" name="category" class="form-control" required>
-                    <option value="" disabled {% if not category_val %}selected{% endif %}>Select Category</option>
+                <label for="category">
+                    Category <span class="required-marker" aria-hidden="true">*</span>
+                </label>
+                <select id="category" name="category" class="form-control" required aria-required="true">
+                    <option value="" disabled {% if not category_val %}selected{% endif %}>Select category…</option>
                     {% for cat in categories %}
                         <option value="{{ cat }}" {% if category_val == cat %}selected{% endif %}>{{ cat }}</option>
                     {% endfor %}
@@ -36,9 +45,11 @@
             </div>
 
             <div class="form-group">
-                <label for="priority">Priority <span style="color:#dc2626;">*</span></label>
-                <select id="priority" name="priority" class="form-control" required>
-                    <option value="" disabled {% if not priority_val %}selected{% endif %}>Select Priority</option>
+                <label for="priority">
+                    Priority <span class="required-marker" aria-hidden="true">*</span>
+                </label>
+                <select id="priority" name="priority" class="form-control" required aria-required="true">
+                    <option value="" disabled {% if not priority_val %}selected{% endif %}>Select priority…</option>
                     {% for pri in priorities %}
                         <option value="{{ pri }}" {% if priority_val == pri %}selected{% endif %}>{{ pri }}</option>
                     {% endfor %}
@@ -47,12 +58,16 @@
         </div>
 
         <div class="form-group">
-            <label for="description">Detailed Description <span style="color:#dc2626;">*</span></label>
-            <textarea id="description" name="description" rows="5" class="form-control" required
-                      placeholder="Provide all relevant details, steps to reproduce, error messages...">{{ description_val|default('') }}</textarea>
+            <label for="description">
+                Description <span class="required-marker" aria-hidden="true">*</span>
+            </label>
+            <textarea id="description" name="description"
+                      class="form-control" rows="5" required
+                      placeholder="Describe the issue, steps to reproduce, error messages, etc."
+                      aria-required="true">{{ description_val|default('') }}</textarea>
         </div>
 
-        <div style="display:flex; gap:.75rem; justify-content:flex-end; margin-top:1.2rem;">
+        <div class="form-actions">
             <a href="{{ url_for('employee.dashboard') }}" class="btn btn-secondary">Cancel</a>
             <button type="submit" class="btn btn-primary">Submit Ticket</button>
         </div>

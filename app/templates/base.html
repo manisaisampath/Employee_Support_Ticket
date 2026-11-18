@@ -3,39 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Employee Support Ticket System">
     <title>{% block title %}Employee Support Ticket System{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <header class="app-header">
+
+    <!-- Navigation Header -->
+    <header class="app-header" role="banner">
         <div class="nav-container">
             <div class="brand">
-                <a href="/">&#127916; Employee Support Ticket System</a>
+                <a href="/" aria-label="Home — Employee Support Ticket System">
+                    &#128274;&nbsp;Support Tickets
+                </a>
             </div>
-            <nav class="nav-actions">
+
+            <nav class="nav-actions" role="navigation" aria-label="Main navigation">
                 {% if session.get('user_id') %}
-                    <span class="user-greeting">
-                        Logged in as: <strong>{{ session.get('username') }}</strong>
+                    <span class="user-greeting" aria-live="polite">
+                        <span>Hello, <strong>{{ session.get('username') }}</strong></span>
                         <span class="role-badge">{{ session.get('role') }}</span>
                     </span>
                     <form action="{{ url_for('auth.logout') }}" method="POST" class="inline-form">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <button type="submit" class="btn btn-logout">Logout</button>
+                        <button type="submit" class="btn-logout">Logout</button>
                     </form>
                 {% else %}
-                    <a href="{{ url_for('auth.login') }}" class="nav-link" style="color:#fff; font-weight:600;">Login</a>
+                    <a href="{{ url_for('auth.login') }}" class="nav-link"
+                       style="color:#fff; font-weight:600; font-size:.9rem;">Login</a>
                 {% endif %}
             </nav>
         </div>
     </header>
 
-    <main class="main-container">
+    <!-- Main Content -->
+    <main class="main-container" id="main-content" role="main">
+
+        <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="flash-messages">
+                <div class="flash-messages" role="alert" aria-live="polite">
                     {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}" role="alert">
-                            {{ message }}
+                        <div class="alert alert-{{ category }}">
+                            <span>{{ message }}</span>
                         </div>
                     {% endfor %}
                 </div>
@@ -43,10 +53,14 @@
         {% endwith %}
 
         {% block content %}{% endblock %}
+
     </main>
 
-    <footer style="text-align:center;padding:1.5rem;color:#9ca3af;font-size:.82rem;border-top:1px solid #e5e7eb;margin-top:2rem;">
-        &copy; 2026 Employee Support Ticket System &mdash; All rights reserved.
+    <!-- Footer -->
+    <footer class="app-footer" role="contentinfo">
+        &copy; 2026 Employee Support Ticket System &mdash; Internal Use Only
     </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

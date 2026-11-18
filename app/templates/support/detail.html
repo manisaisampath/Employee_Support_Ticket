@@ -1,27 +1,32 @@
 {% extends 'base.html' %}
 
-{% block title %}Ticket #{{ ticket.id }} - Support Console{% endblock %}
+{% block title %}Ticket #{{ ticket.id }} — Support Console{% endblock %}
 
 {% block content %}
 <div class="detail-nav">
-    <a href="{{ url_for('support.dashboard') }}" class="btn btn-secondary">&larr; Back to Queue</a>
+    <a href="{{ url_for('support.dashboard') }}" class="btn btn-secondary">
+        &larr; Back to Queue
+    </a>
 </div>
 
-<div class="detail-card detail-container">
+<div class="detail-card">
+    <!-- Header -->
     <div class="detail-header">
         <div class="detail-title-group">
             <span class="ticket-id-tag">Ticket #{{ ticket.id }}</span>
             <h2>{{ ticket.title }}</h2>
         </div>
-        <span class="badge badge-status-{{ ticket.status|lower|replace(' ', '-') }} badge-lg">
+        <span class="badge badge-lg badge-status-{{ ticket.status|lower|replace(' ', '-') }}"
+              aria-label="Status: {{ ticket.status }}">
             {{ ticket.status }}
         </span>
     </div>
 
+    <!-- Meta -->
     <div class="detail-meta-grid">
         <div class="meta-item">
             <span class="meta-label">Submitted By</span>
-            <span class="meta-value">{{ ticket.creator_username }}</span>
+            <span class="meta-value font-bold">{{ ticket.creator_username }}</span>
         </div>
         <div class="meta-item">
             <span class="meta-label">Category</span>
@@ -33,14 +38,15 @@
         </div>
         <div class="meta-item">
             <span class="meta-label">Created (UTC)</span>
-            <span class="meta-value" style="font-size:.83rem;">{{ ticket.created_date }}</span>
+            <span class="meta-value text-sm text-secondary">{{ ticket.created_date }}</span>
         </div>
         <div class="meta-item">
             <span class="meta-label">Last Updated (UTC)</span>
-            <span class="meta-value" style="font-size:.83rem;">{{ ticket.last_updated_date }}</span>
+            <span class="meta-value text-sm text-secondary">{{ ticket.last_updated_date }}</span>
         </div>
     </div>
 
+    <!-- Description (read-only) -->
     <div class="detail-section">
         <h3>Description</h3>
         <div class="ticket-description-box">{{ ticket.description }}</div>
@@ -48,36 +54,39 @@
 
     <!-- Comments -->
     <div class="detail-section comments-section">
-        <h3>&#128172; Comments
-            <span style="font-size:.78rem; font-weight:400; color:var(--text-muted); margin-left:.4rem;">
-                ({{ comments|length }})
-            </span>
+        <h3>
+            &#128172; Comments
+            <em class="comment-count-badge">({{ comments|length }})</em>
         </h3>
 
         {% if comments %}
-            <ul class="comment-list">
+            <ul class="comment-list" aria-label="Ticket comments">
                 {% for c in comments %}
                     <li class="comment-item">
                         <div class="comment-meta">
                             <span class="comment-author">{{ c.author_username }}</span>
-                            <span class="badge badge-category" style="font-size:.7rem; padding:.1em .4em;">{{ c.author_role }}</span>
-                            <span class="comment-date">&bull; {{ c.created_date }}</span>
+                            <span class="comment-role">{{ c.author_role }}</span>
+                            <span class="comment-date">{{ c.created_date }} UTC</span>
                         </div>
                         <div class="comment-content">{{ c.content }}</div>
                     </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p style="color:var(--text-muted); font-size:.9rem; margin-bottom:.9rem;">No comments yet.</p>
+            <p class="text-secondary text-sm mt-2">No comments yet.</p>
         {% endif %}
 
-        <div class="comment-form">
-            <form method="POST" action="{{ url_for('support.add_comment_route', ticket_id=ticket.id) }}">
+        <div class="comment-form" aria-label="Add a comment">
+            <form method="POST"
+                  action="{{ url_for('support.add_comment_route', ticket_id=ticket.id) }}"
+                  novalidate>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group">
                     <label for="content">Add a Comment</label>
-                    <textarea id="content" name="content" rows="3" class="form-control"
-                              required placeholder="Write your comment here..."></textarea>
+                    <textarea id="content" name="content" rows="3"
+                              class="form-control" required
+                              placeholder="Write your comment here…"
+                              aria-required="true"></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
             </form>
@@ -85,23 +94,29 @@
     </div>
 
     <!-- Status Management -->
-    <div class="detail-section status-management-section">
+    <div class="detail-section">
         <h3>&#9881; Status Management</h3>
-        <p class="section-help">Change the ticket status directly — all transitions between valid statuses are supported.</p>
-
-        <form method="POST" action="{{ url_for('support.update_status', ticket_id=ticket.id) }}" class="status-form">
+        <p class="section-help">
+            Direct transitions between any valid status are supported.
+            Updating the status also refreshes the last updated timestamp.
+        </p>
+        <form method="POST"
+              action="{{ url_for('support.update_status', ticket_id=ticket.id) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="status-form-row">
                 <div class="form-group">
-                    <label for="status">New Status</label>
+                    <label for="status">Change Status</label>
                     <select id="status" name="status" class="form-control" required>
                         {% for s in statuses %}
-                            <option value="{{ s }}" {% if ticket.status == s %}selected{% endif %}>{{ s }}</option>
+                            <option value="{{ s }}"
+                                {% if ticket.status == s %}selected{% endif %}>
+                                {{ s }}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>
-                <div class="form-group" style="margin-bottom:0;">
-                    <label style="visibility:hidden; display:block; font-size:.88rem;">Update</label>
+                <div class="form-group mb-0">
+                    <label style="visibility:hidden; display:block;">&nbsp;</label>
                     <button type="submit" class="btn btn-primary">Update Status</button>
                 </div>
             </div>
