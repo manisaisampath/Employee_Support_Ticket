@@ -1,10 +1,12 @@
-"""Support staff routes for global ticket management and ticket inspection."""
+"""Support staff routes for global ticket management, inspection, and status updates."""
 
-from flask import Blueprint, abort, render_template
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from app.decorators import login_required, role_required
-from app.models import get_all_tickets, get_ticket_by_id
+from app.models import get_all_tickets, get_ticket_by_id, update_ticket_status
 
 support_bp = Blueprint('support', __name__, url_prefix='/support')
+
+ALLOWED_STATUSES = ('Open', 'In Progress', 'Resolved', 'Closed')
 
 
 @support_bp.route('/dashboard')
@@ -20,8 +22,35 @@ def dashboard():
 @login_required
 @role_required('support_staff')
 def detail(ticket_id):
-    """Display complete read-only ticket details for support staff."""
+    """Display complete read-only ticket details and status update form for support staff."""
     ticket = get_ticket_by_id(ticket_id)
     if not ticket:
         abort(404, description="Ticket not found.")
-    return render_template('support/detail.html', ticket=ticket)
+    return render_template(
+        'support/detail.html',
+        ticket=ticket,
+        statuses=ALLOWED_STATUSES,
+    )
+
+
+@support_bp.route('/tickets/<int:ticket_id>/status', methods=['POST'])
+@login_required
+@role_required('support_staff')
+def update_status(ticket_id):
+    """Update a ticket's status.
+
+    Permits direct flexible transitions between any valid status.
+    Automatically refreshes last_updated_date in UTC.
+    """
+    ticket = get_ticket_by_id(ticket_id)
+    if not ticket:
+        abort(404, description="Ticket not found.")
+
+    new_status = request.form.get('status', '').strip()
+    if new_status not in ALLOWED_STATUSES:
+        abort(400, description="Invalid status selected.")
+
+    update_ticket_status(ticket_id, new_status)
+
+    flash(f"Status for Ticket #{ticket_id} updated to '{new_status}'.", "success")
+    return redirect(url_for('support.detail', ticket_id=ticket_id))

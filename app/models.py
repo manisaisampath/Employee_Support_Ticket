@@ -125,3 +125,20 @@ def create_ticket(title, description, category, priority, status, created_by, cr
     )
     db.commit()
     return cursor.lastrowid
+
+
+def update_ticket_status(ticket_id, new_status, last_updated_date=None):
+    """Update a ticket's status and refresh last_updated_date."""
+    if last_updated_date is None:
+        last_updated_date = get_current_utc_timestamp()
+    db = get_db()
+    db.execute(
+        """
+        UPDATE tickets
+        SET status = ?, last_updated_date = ?
+        WHERE id = ?;
+        """,
+        (new_status, last_updated_date, ticket_id)
+    )
+    db.commit()
+
