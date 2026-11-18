@@ -1,58 +1,61 @@
 {% extends 'base.html' %}
 
-{% block title %}Create Support Ticket - Employee Support Ticket System{% endblock %}
+{% block title %}Create Ticket - Employee Support Ticket System{% endblock %}
 
 {% block content %}
-<div class="form-wrapper">
-    <div class="form-card">
-        <div class="form-card-header">
-            <h2>Create New Support Ticket</h2>
-            <p class="subtitle">Please provide clear details regarding your technical or operational issue.</p>
+<div class="detail-nav">
+    <a href="{{ url_for('employee.dashboard') }}" class="btn btn-secondary">&larr; Back to My Tickets</a>
+</div>
+
+<div class="create-form-card">
+    <h2>&#128221; Create New Support Ticket</h2>
+    <p style="color:var(--text-muted); font-size:.9rem; margin-bottom:1.4rem;">
+        Provide clear details about your issue. Once submitted, ticket details cannot be edited.
+    </p>
+
+    <form method="POST" action="{{ url_for('employee.create') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-group">
+            <label for="title">Ticket Title <span style="color:#dc2626;">*</span></label>
+            <input type="text" id="title" name="title" maxlength="100" class="form-control"
+                   value="{{ title_val|default('') }}" required
+                   placeholder="Brief summary of the issue (max 100 characters)">
+            <small style="color:var(--text-muted); font-size:.78rem;">Maximum 100 characters.</small>
         </div>
 
-        <form method="POST" action="{{ url_for('employee.create') }}" class="ticket-form">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
+        <div class="form-row-cols">
             <div class="form-group">
-                <label for="title">Ticket Title <span class="required">*</span></label>
-                <input type="text" id="title" name="title" maxlength="100" class="form-control"
-                       value="{{ title_val|default('') }}" required placeholder="Brief summary of the issue (max 100 characters)">
-                <small class="form-help">Maximum 100 characters.</small>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group col">
-                    <label for="category">Category <span class="required">*</span></label>
-                    <select id="category" name="category" class="form-control" required>
-                        <option value="" disabled {% if not category_val %}selected{% endif %}>Select Category</option>
-                        {% for cat in categories %}
-                            <option value="{{ cat }}" {% if category_val == cat %}selected{% endif %}>{{ cat }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group col">
-                    <label for="priority">Priority <span class="required">*</span></label>
-                    <select id="priority" name="priority" class="form-control" required>
-                        <option value="" disabled {% if not priority_val %}selected{% endif %}>Select Priority</option>
-                        {% for pri in priorities %}
-                            <option value="{{ pri }}" {% if priority_val == pri %}selected{% endif %}>{{ pri }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                <label for="category">Category <span style="color:#dc2626;">*</span></label>
+                <select id="category" name="category" class="form-control" required>
+                    <option value="" disabled {% if not category_val %}selected{% endif %}>Select Category</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}" {% if category_val == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
             </div>
 
             <div class="form-group">
-                <label for="description">Detailed Description <span class="required">*</span></label>
-                <textarea id="description" name="description" rows="5" class="form-control" required
-                          placeholder="Provide all relevant details, steps to reproduce, or error messages...">{{ description_val|default('') }}</textarea>
+                <label for="priority">Priority <span style="color:#dc2626;">*</span></label>
+                <select id="priority" name="priority" class="form-control" required>
+                    <option value="" disabled {% if not priority_val %}selected{% endif %}>Select Priority</option>
+                    {% for pri in priorities %}
+                        <option value="{{ pri }}" {% if priority_val == pri %}selected{% endif %}>{{ pri }}</option>
+                    {% endfor %}
+                </select>
             </div>
+        </div>
 
-            <div class="form-actions">
-                <a href="{{ url_for('employee.dashboard') }}" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary">Submit Ticket</button>
-            </div>
-        </form>
-    </div>
+        <div class="form-group">
+            <label for="description">Detailed Description <span style="color:#dc2626;">*</span></label>
+            <textarea id="description" name="description" rows="5" class="form-control" required
+                      placeholder="Provide all relevant details, steps to reproduce, error messages...">{{ description_val|default('') }}</textarea>
+        </div>
+
+        <div style="display:flex; gap:.75rem; justify-content:flex-end; margin-top:1.2rem;">
+            <a href="{{ url_for('employee.dashboard') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Submit Ticket</button>
+        </div>
+    </form>
 </div>
 {% endblock %}

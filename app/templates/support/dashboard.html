@@ -6,55 +6,57 @@
 <div class="dashboard-container">
     <div class="dashboard-header">
         <div>
-            <h2>Support Staff Console</h2>
-            <p class="subtitle">Global organization queue: monitor and triage employee support requests.</p>
+            <h2>&#128101; Support Console</h2>
+            <p class="subtitle">Global ticket queue — monitor, triage, and resolve employee support requests.</p>
         </div>
+        {% if tickets %}
+            <span style="font-size:.85rem; color:var(--text-muted); align-self:center;">
+                {{ tickets|length }} ticket{{ 's' if tickets|length != 1 else '' }} total
+            </span>
+        {% endif %}
     </div>
 
     {% if tickets %}
-        <div class="table-responsive">
-            <table class="tickets-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>Employee</th>
-                        <th>Category</th>
-                        <th>Priority</th>
-                        <th>Status</th>
-                        <th>Created (UTC)</th>
-                        <th>Last Updated (UTC)</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for ticket in tickets %}
+        <div class="table-card">
+            <div class="table-responsive">
+                <table class="tickets-table">
+                    <thead>
                         <tr>
-                            <td>#{{ ticket.id }}</td>
-                            <td class="ticket-title-cell">
-                                <a href="{{ url_for('support.detail', ticket_id=ticket.id) }}" class="ticket-link">
-                                    {{ ticket.title }}
-                                </a>
-                            </td>
-                            <td><strong>{{ ticket.creator_username }}</strong></td>
-                            <td><span class="badge badge-category">{{ ticket.category }}</span></td>
-                            <td><span class="badge badge-priority badge-priority-{{ ticket.priority|lower }}">{{ ticket.priority }}</span></td>
-                            <td><span class="badge badge-status badge-status-{{ ticket.status|lower|replace(' ', '-') }}">{{ ticket.status }}</span></td>
-                            <td>{{ ticket.created_date }}</td>
-                            <td>{{ ticket.last_updated_date }}</td>
-                            <td>
-                                <a href="{{ url_for('support.detail', ticket_id=ticket.id) }}" class="btn btn-sm btn-outline">
-                                    Inspect
-                                </a>
-                            </td>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Employee</th>
+                            <th>Category</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Created (UTC)</th>
+                            <th>Last Updated (UTC)</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for ticket in tickets %}
+                            <tr>
+                                <td style="color:var(--text-muted); font-size:.82rem;">#{{ ticket.id }}</td>
+                                <td class="ticket-title-cell">
+                                    <a href="{{ url_for('support.detail', ticket_id=ticket.id) }}" class="ticket-title-link">
+                                        {{ ticket.title }}
+                                    </a>
+                                </td>
+                                <td style="font-size:.88rem;"><strong>{{ ticket.creator_username }}</strong></td>
+                                <td><span class="badge badge-category">{{ ticket.category }}</span></td>
+                                <td><span class="badge badge-priority-{{ ticket.priority|lower }}">{{ ticket.priority }}</span></td>
+                                <td><span class="badge badge-status-{{ ticket.status|lower|replace(' ', '-') }}">{{ ticket.status }}</span></td>
+                                <td style="font-size:.82rem; color:var(--text-muted);">{{ ticket.created_date }}</td>
+                                <td style="font-size:.82rem; color:var(--text-muted);">{{ ticket.last_updated_date }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     {% else %}
         <div class="empty-state">
-            <p>No support tickets found in the queue.</p>
+            <div style="font-size:3rem; margin-bottom:.6rem;">&#127881;</div>
+            <p>No support tickets in the queue — all clear!</p>
         </div>
     {% endif %}
 </div>

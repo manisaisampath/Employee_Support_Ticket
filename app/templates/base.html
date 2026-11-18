@@ -4,26 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Employee Support Ticket System{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <header class="app-header">
         <div class="nav-container">
             <div class="brand">
-                <a href="/">Employee Support Ticket System</a>
+                <a href="/">&#127916; Employee Support Ticket System</a>
             </div>
             <nav class="nav-actions">
                 {% if session.get('user_id') %}
                     <span class="user-greeting">
                         Logged in as: <strong>{{ session.get('username') }}</strong>
-                        <span class="role-badge">({{ session.get('role') }})</span>
+                        <span class="role-badge">{{ session.get('role') }}</span>
                     </span>
                     <form action="{{ url_for('auth.logout') }}" method="POST" class="inline-form">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="btn btn-logout">Logout</button>
                     </form>
                 {% else %}
-                    <a href="{{ url_for('auth.login') }}" class="nav-link">Login</a>
+                    <a href="{{ url_for('auth.login') }}" class="nav-link" style="color:#fff; font-weight:600;">Login</a>
                 {% endif %}
             </nav>
         </div>
@@ -44,5 +44,9 @@
 
         {% block content %}{% endblock %}
     </main>
+
+    <footer style="text-align:center;padding:1.5rem;color:#9ca3af;font-size:.82rem;border-top:1px solid #e5e7eb;margin-top:2rem;">
+        &copy; 2026 Employee Support Ticket System &mdash; All rights reserved.
+    </footer>
 </body>
 </html>

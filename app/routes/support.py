@@ -1,6 +1,6 @@
 """Support staff routes for global ticket management, inspection, and status updates."""
 
-from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
 from app.decorators import login_required, role_required
 from app.models import get_all_tickets, get_ticket_by_id, update_ticket_status, add_comment, get_comments_by_ticket
 

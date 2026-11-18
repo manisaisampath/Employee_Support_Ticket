@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Error - Employee Support Ticket System{% endblock %}
+{% block content %}
+<div class="login-wrapper">
+    <div class="error-card">
+        <div class="error-code">{{ code }}</div>
+        <div class="error-title">{{ title }}</div>
+        <p class="error-desc">{{ description }}</p>
+        <a href="/" class="btn btn-primary">Go Home</a>
+    </div>
+</div>
+{% endblock %}

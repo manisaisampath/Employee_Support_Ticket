@@ -1,72 +1,81 @@
 {% extends 'base.html' %}
 
-{% block title %}Ticket #{{ ticket.id }} - Employee Detail{% endblock %}
+{% block title %}Ticket #{{ ticket.id }} - My Tickets{% endblock %}
 
 {% block content %}
-<div class="detail-container">
-    <div class="detail-nav">
-        <a href="{{ url_for('employee.dashboard') }}" class="btn btn-secondary">&larr; Back to My Tickets</a>
+<div class="detail-nav">
+    <a href="{{ url_for('employee.dashboard') }}" class="btn btn-secondary">&larr; Back to My Tickets</a>
+</div>
+
+<div class="detail-card detail-container">
+    <div class="detail-header">
+        <div class="detail-title-group">
+            <span class="ticket-id-tag">Ticket #{{ ticket.id }}</span>
+            <h2>{{ ticket.title }}</h2>
+        </div>
+        <span class="badge badge-status-{{ ticket.status|lower|replace(' ', '-') }} badge-lg">
+            {{ ticket.status }}
+        </span>
     </div>
 
-    <div class="detail-card">
-        <div class="detail-header">
-            <h2>{{ ticket.title }}</h2>
-            <span class="badge badge-status badge-status-{{ ticket.status|lower|replace(' ', '-') }} badge-lg">{{ ticket.status }}</span>
+    <div class="detail-meta-grid">
+        <div class="meta-item">
+            <span class="meta-label">Category</span>
+            <span class="meta-value"><span class="badge badge-category">{{ ticket.category }}</span></span>
         </div>
-
-        <div class="detail-meta-grid">
-            <div class="meta-item">
-                <span class="meta-label">Category</span>
-                <span class="meta-value"><span class="badge badge-category">{{ ticket.category }}</span></span>
-            </div>
-            <div class="meta-item">
-                <span class="meta-label">Priority</span>
-                <span class="meta-value"><span class="badge badge-priority badge-priority-{{ ticket.priority|lower }}">{{ ticket.priority }}</span></span>
-            </div>
-            <div class="meta-item">
-                <span class="meta-label">Created Date (UTC)</span>
-                <span class="meta-value">{{ ticket.created_date }}</span>
-            </div>
-            <div class="meta-item">
-                <span class="meta-label">Last Updated (UTC)</span>
-                <span class="meta-value">{{ ticket.last_updated_date }}</span>
-            </div>
+        <div class="meta-item">
+            <span class="meta-label">Priority</span>
+            <span class="meta-value"><span class="badge badge-priority-{{ ticket.priority|lower }}">{{ ticket.priority }}</span></span>
         </div>
-
-        <div class="detail-section">
-            <h3>Detailed Description</h3>
-            <div class="ticket-description-box">
-                {{ ticket.description }}
-            </div>
+        <div class="meta-item">
+            <span class="meta-label">Submitted</span>
+            <span class="meta-value" style="font-size:.83rem;">{{ ticket.created_date }}</span>
         </div>
+        <div class="meta-item">
+            <span class="meta-label">Last Updated</span>
+            <span class="meta-value" style="font-size:.83rem;">{{ ticket.last_updated_date }}</span>
+        </div>
+    </div>
 
-        <!-- Comment Thread -->
-        <div class="detail-section comments-section">
-            <h3>Comments</h3>
-            {% if comments %}
-                <ul class="comment-list">
-                    {% for c in comments %}
-                        <li class="comment-item">
-                            <div class="comment-meta">
-                                <span class="comment-author">{{ c.author_username }} ({{ c.author_role }})</span>
-                                <span class="comment-date">{{ c.created_date }}</span>
-                            </div>
-                            <div class="comment-content">
-                                {{ c.content }}
-                            </div>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No comments yet.</p>
-            {% endif %}
-            <form method="POST" action="{{ url_for('employee.comment', ticket_id=ticket.id) }}" class="comment-form">
+    <div class="detail-section">
+        <h3>Description</h3>
+        <div class="ticket-description-box">{{ ticket.description }}</div>
+    </div>
+
+    <!-- Comments -->
+    <div class="detail-section comments-section">
+        <h3>&#128172; Comments
+            <span style="font-size:.78rem; font-weight:400; color:var(--text-muted); margin-left:.4rem;">
+                ({{ comments|length }})
+            </span>
+        </h3>
+
+        {% if comments %}
+            <ul class="comment-list">
+                {% for c in comments %}
+                    <li class="comment-item">
+                        <div class="comment-meta">
+                            <span class="comment-author">{{ c.author_username }}</span>
+                            <span class="badge badge-category" style="font-size:.7rem; padding:.1em .4em;">{{ c.author_role }}</span>
+                            <span class="comment-date">&bull; {{ c.created_date }}</span>
+                        </div>
+                        <div class="comment-content">{{ c.content }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p style="color:var(--text-muted); font-size:.9rem; margin-bottom:.9rem;">No comments yet. Be the first to comment.</p>
+        {% endif %}
+
+        <div class="comment-form">
+            <form method="POST" action="{{ url_for('employee.comment', ticket_id=ticket.id) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group">
-                    <label for="content">Add Comment</label>
-                    <textarea id="content" name="content" rows="3" class="form-control" required></textarea>
+                    <label for="content">Add a Comment</label>
+                    <textarea id="content" name="content" rows="3" class="form-control"
+                              required placeholder="Write your comment here..."></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary mt-2">Post Comment</button>
+                <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
             </form>
         </div>
     </div>
