@@ -142,3 +142,43 @@ def update_ticket_status(ticket_id, new_status, last_updated_date=None):
     )
     db.commit()
 
+
+def get_comments_by_ticket(ticket_id):
+    """Retrieve all comments for a ticket in chronological order with author details."""
+    db = get_db()
+    return db.execute(
+        """
+        SELECT c.*, u.username AS author_username, u.role AS author_role
+        FROM comments c
+        JOIN users u ON c.user_id = u.id
+        WHERE c.ticket_id = ?
+        ORDER BY c.created_date ASC, c.id ASC;
+        """,
+        (ticket_id,)
+    ).fetchall()
+
+
+def add_comment(ticket_id, user_id, content, created_date=None):
+    """Add a permanent comment to a ticket and atomically refresh last_updated_date."""
+    if created_date is None:
+        created_date = get_current_utc_timestamp()
+    db = get_db()
+    cursor = db.execute(
+        """
+        INSERT INTO comments (ticket_id, user_id, content, created_date)
+        VALUES (?, ?, ?, ?);
+        """,
+        (ticket_id, user_id, content, created_date)
+    )
+    db.execute(
+        """
+        UPDATE tickets
+        SET last_updated_date = ?
+        WHERE id = ?;
+        """,
+        (created_date, ticket_id)
+    )
+    db.commit()
+    return cursor.lastrowid
+
+

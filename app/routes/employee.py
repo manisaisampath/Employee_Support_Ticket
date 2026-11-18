@@ -1,8 +1,14 @@
-"""Employee routes for ticket dashboard and ticket creation."""
+"""Employee routes for ticket dashboard, ticket creation, details, and commenting."""
 
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
 from app.decorators import login_required, role_required
-from app.models import create_ticket, get_tickets_by_user
+from app.models import (
+    add_comment,
+    create_ticket,
+    get_comments_by_ticket,
+    get_ticket_by_id,
+    get_tickets_by_user,
+)
 
 employee_bp = Blueprint('employee', __name__, url_prefix='/employee')
 
@@ -77,3 +83,45 @@ def create():
         categories=ALLOWED_CATEGORIES,
         priorities=ALLOWED_PRIORITIES,
     )
+
+
+@employee_bp.route('/tickets/<int:ticket_id>')
+@login_required
+@role_required('employee')
+def detail(ticket_id):
+    """Display personal ticket details and comment thread for the employee."""
+    ticket = get_ticket_by_id(ticket_id)
+    if not ticket:
+        abort(404, description="Ticket not found.")
+
+    # Strictly enforce visibility isolation: employees view only their own tickets
+    if ticket['created_by'] != session['user_id']:
+        abort(403, description="Access forbidden: You are not authorized to view this ticket.")
+
+    comments = get_comments_by_ticket(ticket_id)
+    return render_template('employee/detail.html', ticket=ticket, comments=comments)
+
+
+@employee_bp.route('/tickets/<int:ticket_id>/comments', methods=['POST'])
+@login_required
+@role_required('employee')
+def comment(ticket_id):
+    """Add a permanent comment to the employee's own ticket."""
+    ticket = get_ticket_by_id(ticket_id)
+    if not ticket:
+        abort(404, description="Ticket not found.")
+
+    # Strictly enforce: employees may comment only on their own tickets
+    if ticket['created_by'] != session['user_id']:
+        abort(403, description="Access forbidden: You are not authorized to comment on this ticket.")
+
+    content = request.form.get('content', '').strip()
+    if not content:
+        flash("Comment cannot be empty.", "error")
+        comments = get_comments_by_ticket(ticket_id)
+        return render_template('employee/detail.html', ticket=ticket, comments=comments), 400
+
+    # Add comment and atomically refresh last_updated_date; allowed on Closed tickets
+    add_comment(ticket_id, session['user_id'], content)
+    flash("Comment added successfully.", "success")
+    return redirect(url_for('employee.detail', ticket_id=ticket_id))

@@ -2,7 +2,7 @@
 
 from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from app.decorators import login_required, role_required
-from app.models import get_all_tickets, get_ticket_by_id, update_ticket_status
+from app.models import get_all_tickets, get_ticket_by_id, update_ticket_status, add_comment, get_comments_by_ticket
 
 support_bp = Blueprint('support', __name__, url_prefix='/support')
 
@@ -26,10 +26,12 @@ def detail(ticket_id):
     ticket = get_ticket_by_id(ticket_id)
     if not ticket:
         abort(404, description="Ticket not found.")
+    comments = get_comments_by_ticket(ticket_id)
     return render_template(
         'support/detail.html',
         ticket=ticket,
         statuses=ALLOWED_STATUSES,
+        comments=comments,
     )
 
 
@@ -53,4 +55,23 @@ def update_status(ticket_id):
     update_ticket_status(ticket_id, new_status)
 
     flash(f"Status for Ticket #{ticket_id} updated to '{new_status}'.", "success")
+    return redirect(url_for('support.detail', ticket_id=ticket_id))
+
+# Comment submission for support staff
+@support_bp.route('/tickets/<int:ticket_id>/comments', methods=['POST'])
+@login_required
+@role_required('support_staff')
+def add_comment_route(ticket_id):
+    """Add a comment to any ticket (support staff)."""
+    ticket = get_ticket_by_id(ticket_id)
+    if not ticket:
+        abort(404, description="Ticket not found.")
+    content = request.form.get('content', '').strip()
+    if not content:
+        flash('Comment cannot be empty.', 'error')
+        # reuse detail view with comments
+        comments = get_comments_by_ticket(ticket_id)
+        return render_template('support/detail.html', ticket=ticket, statuses=ALLOWED_STATUSES, comments=comments), 400
+    add_comment(ticket_id, session['user_id'], content)
+    flash('Comment added successfully.', 'success')
     return redirect(url_for('support.detail', ticket_id=ticket_id))

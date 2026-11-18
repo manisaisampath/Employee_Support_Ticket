@@ -51,6 +51,36 @@
             </div>
         </div>
 
+        <!-- Comment Thread -->
+        <div class="detail-section comments-section">
+            <h3>Comments</h3>
+            {% if comments %}
+                <ul class="comment-list">
+                    {% for c in comments %}
+                        <li class="comment-item">
+                            <div class="comment-meta">
+                                <span class="comment-author">{{ c.author_username }} ({{ c.author_role }})</span>
+                                <span class="comment-date">{{ c.created_date }}</span>
+                            </div>
+                            <div class="comment-content">
+                                {{ c.content }}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No comments yet.</p>
+            {% endif %}
+            <form method="POST" action="{{ url_for('support.add_comment_route', ticket_id=ticket.id) }}" class="comment-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group">
+                    <label for="content">Add Comment</label>
+                    <textarea id="content" name="content" rows="3" class="form-control" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Post Comment</button>
+            </form>
+        </div>
+
         <div class="detail-section status-management-section">
             <h3>Status Management</h3>
             <p class="section-help">Change ticket status to reflect current operational progress. Direct transitions between any valid status are supported.</p>
